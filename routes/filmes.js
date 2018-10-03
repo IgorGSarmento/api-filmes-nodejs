@@ -61,19 +61,55 @@ router.get('/consultar/:dtainicio/:dtafim', function(req, res, next) {
 
 /* POST | insere um filme por url. */
 router.post('/inserir', function(req, res, next){
-	res.send('Got a POST request');
+  req.body.dtaestreia = invert_date(req.body.dtaestreia);
+  req.body.diretor = req.body.diretor.split(", ");
+  req.body.genero = req.body.genero.split(", ");
+
+  let filme = new Filme(req.body);
+
+  filme.save(function(err, filme) {
+    if (err) {
+      return res.send(err)
+    }
+
+    res.send({
+      message: 'Filme Adicionado!'
+    });
+  });
 });
 
 /* PUT | atualiza um filme a partir do titulo. */
-router.put('/atualizar/:titulo', function (req, res) {
-  res.send('Got a PUT request');
-  console.log('Atualiza filme:', req.params.filme);
+router.put('/atualizar/:titulo', function (req, res, next) {
+  let titulo_filme = req.params.titulo;
+
+  req.body.dtaestreia = invert_date(req.body.dtaestreia);
+  req.body.diretor = req.body.diretor.split(", ");
+  req.body.genero = req.body.genero.split(", ");
+
+  Filme.findOneAndUpdate({titulo : titulo_filme}, req.body, function(err, filmes){
+    if (err) {
+      return res.send(err)
+    }
+
+    res.send({
+      message: 'Filme Atualizado!'
+    });
+  });
 });
 
 /* DELETE | apaga um filme pelo titulo. */
-router.delete('/apagar/:titulo', function (req, res) {
-  res.send('Got a DELETE request');
-  console.log('Delata filme:', req.params.filme);
+router.delete('/apagar/:titulo', function (req, res, next) {
+  let titulo_filme = req.params.titulo;
+
+  Filme.findOneAndRemove({titulo : titulo_filme}, function(err, filmes){
+    if (err) {
+      return res.send(err)
+    }
+
+    res.send({
+      message: 'Filme Apagado!'
+    });
+  });
 });
 
 module.exports = router;
